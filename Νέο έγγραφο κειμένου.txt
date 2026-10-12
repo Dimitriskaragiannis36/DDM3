@@ -1,0 +1,40 @@
+-- Βήμα 1: Βρείτε τα είδη για κάθε ηθοποιό
+SELECT DISTINCT r1.actor_id, g1.genre_id
+FROM role r1, movie m1, movie_has_genre mhg1, genre g1
+WHERE r1.movie_id = m1.movie_id 
+  AND m1.movie_id = mhg1.movie_id 
+  AND mhg1.genre_id = g1.genre_id;
+
+-- Βήμα 2: Βρείτε ζευγάρια ηθοποιών που έχουν παίξει σε διαφορετικά είδη
+SELECT DISTINCT r1.actor_id AS Actor1, r2.actor_id AS Actor2
+FROM role r1, movie m1, movie_has_genre mhg1, genre g1,
+     role r2, movie m2, movie_has_genre mhg2, genre g2
+WHERE r1.movie_id = m1.movie_id 
+  AND m1.movie_id = mhg1.movie_id 
+  AND mhg1.genre_id = g1.genre_id
+  AND r2.movie_id = m2.movie_id 
+  AND m2.movie_id = mhg2.movie_id 
+  AND mhg2.genre_id = g2.genre_id
+  AND r1.actor_id != r2.actor_id
+  AND g1.genre_id != g2.genre_id;
+
+-- Βήμα 3: Ελέγξτε αν τα ζευγάρια έχουν παίξει σε τουλάχιστον επτά διαφορετικά είδη
+SELECT DISTINCT Actor1, Actor2
+FROM (
+    SELECT r1.actor_id AS Actor1, r2.actor_id AS Actor2, COUNT(DISTINCT g1.genre_id) AS GenreCount
+    FROM role r1, movie m1, movie_has_genre mhg1, genre g1,
+         role r2, movie m2, movie_has_genre mhg2, genre g2
+    WHERE r1.movie_id = m1.movie_id 
+      AND m1.movie_id = mhg1.movie_id 
+      AND mhg1.genre_id = g1.genre_id
+      AND r2.movie_id = m2.movie_id 
+      AND m2.movie_id = mhg2.movie_id 
+      AND mhg2.genre_id = g2.genre_id
+      AND r1.actor_id != r2.actor_id
+      AND g1.genre_id != g2.genre_id
+    GROUP BY Actor1, Actor2
+    HAVING GenreCount >= 7
+) AS ActorPairs;
+
+
+https://chatgpt.com/share/f3228f5b-d0e3-4c33-a495-2143b09b3972
